@@ -1,0 +1,70 @@
+{
+  "name": "corehub_api",
+  "version": "1.0.0",
+  "description": "Modular plug-and-play production-ready backend engine for rapid frontend prototyping and hackathons",
+  "keywords": [
+    "API",
+    "Backend_API",
+    "Docker",
+    "Auth",
+    "express",
+    "modular",
+    "docker",
+    "hackathon",
+    "backend",
+    "auth",
+    "banking",
+    "jobs",
+    "library",
+    "open-source"
+  ],
+  "license": "ISC",
+  "author": "Himanshu Kumar Shahi",
+  "type": "module",
+  "main": "src/server.js",
+  "scripts": {
+    "dev": "nodemon -r dotenv/config src/server.js",
+    "start": "node src/server.js",
+    "lint": "eslint src/ --ext .js --fix",
+    "format": "prettier --write \"src/**/*.{js,json,md}\"",
+    "prepare": "husky install",
+    "test": "cross-env NODE_ENV=test jest --runInBand --detectOpenHandles",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "docker:build": "docker compose build",
+    "docker:up": "docker compose up -d",
+    "docker:down": "docker compose down -v",
+    "docker:logs": "docker compose logs -f backend"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/HimanshuKumarShahi/corehub-api.git"
+  },
+  "bugs": {
+    "url": "https://github.com/HimanshuKumarShahi/corehub-api/issues"
+  },
+  "homepage": "https://github.com/HimanshuKumarShahi/corehub-api#readme",
+  "engines": {
+    "node": ">=20.0.0",
+    "npm": ">=10.0.0"
+  },
+  "dependencies": {
+    "cors": "^2.8.6",
+    "express": "^5.3.0",
+    "husky": "^9.1.7"
+  },
+  "devDependencies": {
+    "dotenv": "^18.0.8",
+    "nodemon": "^3.1.14",
+    "prettier": "^3.9.10"
+  },
+  "lint-staged": {
+    "*.js": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,md}": [
+      "prettier --write"
+    ]
+  }
+}
