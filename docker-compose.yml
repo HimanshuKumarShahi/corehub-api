@@ -1,0 +1,60 @@
+services:
+  backend:
+    build: .
+    ports:
+      - "${PORT:-8000}:8000"
+    environment:
+      - PORT=8000
+      - ACTIVE_DB=${ACTIVE_DB:-mongo}
+      - MONGO_URI=mongodb://mongo:27017/corehub
+      - POSTGRES_URI=postgresql://postgres:password@postgres:5432/corehub
+    profiles: ["mongo", "postgres"] 
+    volumes:
+      - ./src:/app/src
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+
+  mongo:
+    image: mongo:latest
+    profiles: ["mongo"] 
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    deploy:
+      resources:
+        limits:
+          memory: 1G 
+
+  postgres:
+    image: postgres:15-alpine
+    profiles: ["postgres"] 
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: corehub
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+
+  postgres_gui:
+    image: dpage/pgadmin4
+    profiles: ["postgres-gui"]
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@corehub.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "5050:80"
+    depends_on:
+      - postgres
+
+volumes:
+  mongo_data:
+  postgres_data:

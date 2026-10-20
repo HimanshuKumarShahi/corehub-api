@@ -27,14 +27,8 @@
     "start": "node src/server.js",
     "lint": "eslint src/ --ext .js --fix",
     "format": "prettier --write \"src/**/*.{js,json,md}\"",
-    "prepare": "husky install",
-    "test": "cross-env NODE_ENV=test jest --runInBand --detectOpenHandles",
-    "test:watch": "jest --watch",
-    "test:coverage": "jest --coverage",
-    "docker:build": "docker compose build",
-    "docker:up": "docker compose up -d",
-    "docker:down": "docker compose down -v",
-    "docker:logs": "docker compose logs -f backend"
+    "prepare": "husky",
+    "test": "cross-env NODE_ENV=test jest --runInBand --detectOpenHandles"
   },
   "repository": {
     "type": "git",
@@ -49,9 +43,17 @@
     "npm": ">=10.0.0"
   },
   "dependencies": {
+    "bcrypt": "^6.0.0",
     "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
     "express": "^5.3.0",
-    "husky": "^9.1.7"
+    "express-validator": "^7.3.2",
+    "husky": "^9.1.7",
+    "jsonwebtoken": "^9.0.3",
+    "mongoose": "^9.11.2",
+    "pg": "^8.23.1",
+    "pg-hstore": "^2.3.4",
+    "sequelize": "^6.37.8"
   },
   "devDependencies": {
     "dotenv": "^18.0.8",
