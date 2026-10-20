@@ -54,4 +54,4 @@ const gracefulExit = async () => {
 process.on("SIGINT", gracefulExit);
 process.on("SIGTERM", gracefulExit);
 
-export default connectDB;
+export { connectDB, sequelize };
