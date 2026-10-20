@@ -36,16 +36,18 @@ const connectDB = async () => {
 
 const gracefulExit = async () => {
   const activeDB = process.env.ACTIVE_DB || "mongo";
-  
+
   if (activeDB === "mongo") {
     await mongoose.connection.close();
   }
-  
+
   if (activeDB === "postgres" && sequelize) {
     await sequelize.close();
   }
 
-  console.log(`✅ ${activeDB} connection closed cleanly due to app termination`);
+  console.log(
+    `✅ ${activeDB} connection closed cleanly due to app termination`
+  );
   process.exit(0);
 };
 
