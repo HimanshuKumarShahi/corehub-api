@@ -1,46 +1,21 @@
-import express from "express";
-import cors from "cors";
+import dotenv from "dotenv";
+import app from "./app.js";
+import connectDB from "./config/db.js";
 
-const app = express();
 
-// Basic Configurations
-app.use(
-  express.json({
-    limit: "16kb",
-  })
-);
-
-app.use(express.urlencoded({ extended: true, limit: "16kb" }));
-app.use(express.static("public"));
-
-// Cors Configuration
-app.use(
-  cors({
-    origin: process.env.CORS_ORIGIN?.split(",") || "http://localhost:5173",
-    credentials: true,
-    methods: ["GET", "PUT", "POST", "PATCH", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Authorization", "Content-Type"],
-  })
-);
-
-app.get("/", (req, res) => {
-  res.send(
-    "Modular plug-and-play production-ready backend engine for rapid -> frontend prototyping and hackathons & many more."
-  );
+dotenv.config({
+  path: "./.env",
 });
 
-app.use((err, req, res, next) => {
-  const statusCode = err.statusCode || 500;
+const port = process.env.PORT || 8000;
 
-  res.status(statusCode).json({
-    success: false,
-    message: err.message || "Internal Server Error",
-    errors: err.errors || [],
+connectDB()
+  .then(() => {
+    app.listen(port, () => {
+      console.log(`server is listening on port http://localhost:${port}`);
+    });
+  })
+  .catch((err) => {
+    console.error("Failed to start server:", err);
+    process.exit(1);
   });
-});
-
-app.listen(8000, () => {
-  console.log("Server is on 8000");
-});
-
-export default app;
