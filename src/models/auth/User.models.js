@@ -4,6 +4,7 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
 import { sequelize } from "../../config/db.js";
+import { AvailableUserRoles, UserRolesEnum } from "../../utils/constants.js";
 
 const ACTIVE_DB = process.env.ACTIVE_DB || "mongo";
 
@@ -44,6 +45,11 @@ if (ACTIVE_DB === "mongo") {
       password: {
         type: String,
         required: [true, "Password is required."],
+      },
+      role: {
+        type: String,
+        enum: AvailableUserRoles,
+        default: UserRolesEnum.USER,
       },
       isEmailVerified: {
         type: Boolean,
@@ -141,6 +147,10 @@ if (ACTIVE_DB === "mongo") {
     password: {
       type: DataTypes.STRING,
       allowNull: false,
+    },
+    role: {
+      type: DataTypes.ENUM(...AvailableUserRoles),
+      defaultValue: UserRolesEnum.USER,
     },
     isEmailVerified: {
       type: DataTypes.BOOLEAN,
