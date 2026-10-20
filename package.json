@@ -50,7 +50,9 @@
     "express-validator": "^7.3.2",
     "husky": "^9.1.7",
     "jsonwebtoken": "^9.0.3",
+    "mailgen": "^2.0.36",
     "mongoose": "^9.11.2",
+    "nodemailer": "^10.1.7",
     "pg": "^8.23.1",
     "pg-hstore": "^2.3.4",
     "sequelize": "^6.37.8"
