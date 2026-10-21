@@ -26,7 +26,6 @@ app.use(express.urlencoded({ extended: true, limit: "16kb" }));
 
 app.use(express.static("public"));
 
-
 app.use(cookieParser());
 
 app.get("/", (req, res) => {
@@ -35,10 +34,8 @@ app.get("/", (req, res) => {
   );
 });
 
-
 app.use("/api/v1/healthcheck", healthCheckRouter);
 app.use("/api/v1/auth", authRouter);
-
 
 app.use((err, req, res, next) => {
   const statusCode = typeof err.statusCode === "number" ? err.statusCode : 500;
