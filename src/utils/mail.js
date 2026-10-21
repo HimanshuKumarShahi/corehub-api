@@ -3,10 +3,13 @@ import nodemailer from "nodemailer";
 
 const sendEmail = async (options) => {
   const mailGenerator = new Mailgen({
-    theme: "default",
+    theme: "cerberus",
     product: {
-      name: "CodeHub_API",
-      link: "https://CodeHub_API.com",
+      name: "CoreHub_API",
+      link: "https://corehub-api.com",
+      logo: "https://placehold.co/200x50/1e293b/ffffff?text=CoreHub+API",
+      logoHeight: "40px",
+      copyright: "© 2026 CoreHub_API. All rights reserved.",
     },
   });
 
@@ -24,7 +27,7 @@ const sendEmail = async (options) => {
   });
 
   const mail = {
-    from: "CodeHub_API.com",
+    from: '"CoreHub API" <Himanshu@corehub-api.com>',
     to: options.email,
     subject: options.subject,
     text: emailTextual,
@@ -35,46 +38,61 @@ const sendEmail = async (options) => {
     await transporter.sendMail(mail);
   } catch (error) {
     console.error(
-      "Email service fail siliently. check your .env or MAILTRAP credentials."
+      "Email service failed silently. Check your .env or MAILTRAP credentials."
     );
     console.error("ERROR: ", error);
   }
 };
 
 const emailVerificationMailgenContent = (username, verificationUrl) => {
+  const token = verificationUrl.split("/").pop();
+
   return {
     body: {
       name: username,
-      intro: "Welcome to CodeHub_API platform.",
+      intro: "Welcome to CoreHub! We're very excited to have you on board.",
+      dictionary: {
+        "Postman Test Token": token,
+      },
       action: {
-        instructions: "verify your email please click on the following button.",
+        instructions:
+          "Or, verify your email address by clicking the button below:",
         button: {
-          color: "#ae2f2f",
-          text: "Verify Your Email .",
+          color: "#2563eb",
+          text: "Verify Your Email",
           link: verificationUrl,
         },
       },
       outro:
-        "Need help, or have questions? Just reply to this email, we'd love to help.",
+        "If you didn't create an account with CoreHub, you can safely ignore this email.",
+      signature: "Sincerely",
     },
   };
 };
 
 const forgotPasswordMailgenContent = (username, passwordResetUrl) => {
+  const token = passwordResetUrl.split("/").pop();
+
   return {
     body: {
       name: username,
-      intro: "We got a request to reset the password of your account.",
+      intro:
+        "You are receiving this email because a password reset request was submitted for your account.",
+      dictionary: {
+        "Postman Test Token": token,
+      },
       action: {
-        instructions: "reset your Password.",
+        instructions:
+          "Or, click the button below to reset your password. This link will expire in 20 minutes.",
         button: {
-          color: "#20a51e",
-          text: "Reset Password.",
+          color: "#dc2626",
+          text: "Reset Your Password",
           link: passwordResetUrl,
         },
       },
       outro:
-        "Need help, or have questions? Just reply to this email, we'd love to help.",
+        "If you did not request a password reset, no further action is required and your password remains secure.",
+      signature: "Sincerely",
     },
   };
 };
