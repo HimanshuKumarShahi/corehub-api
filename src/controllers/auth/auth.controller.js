@@ -136,7 +136,6 @@ export const logoutUser = asyncHandler(async (req, res) => {
 // verify email
 
 export const verifyEmail = asyncHandler(async (req, res) => {
-
   const { token } = req.params;
 
   const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
@@ -155,22 +154,24 @@ export const verifyEmail = asyncHandler(async (req, res) => {
   user.isEmailVerified = true;
   await user.save({ validateBeforeSave: false });
 
-  return res.status(200).json(new ApiResponse(200, {}, "Email verified successfully."));
+  return res
+    .status(200)
+    .json(new ApiResponse(200, {}, "Email verified successfully."));
 });
 
 // Forgot-Password
 
 export const forgotPassword = asyncHandler(async (req, res) => {
-
   const { email } = req.body;
-  
+
   const user = await User.findOne({ email });
 
   if (!user) {
     throw new ApiError(404, "User with this email does not exist.");
   }
 
-  const { unHashedToken, hashedToken, tokenExpiry } = user.generateTemproryToken();
+  const { unHashedToken, hashedToken, tokenExpiry } =
+    user.generateTemproryToken();
   user.forgotPasswordToken = hashedToken;
   user.forgotPasswordExpiry = tokenExpiry;
   await user.save({ validateBeforeSave: false });
@@ -183,5 +184,35 @@ export const forgotPassword = asyncHandler(async (req, res) => {
     mailgenContent: forgotPasswordMailgenContent(user.username, resetUrl),
   });
 
-  return res.status(200).json(new ApiResponse(200, {}, "Password reset email sent."));
+  return res
+    .status(200)
+    .json(new ApiResponse(200, {}, "Password reset email sent."));
+});
+
+// Reset password
+
+export const resetPassword = asyncHandler(async (req, res) => {
+  const { token } = req.params;
+  const { password } = req.body;
+
+  const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
+
+  const user = await User.findOne({
+    forgotPasswordToken: hashedToken,
+    forgotPasswordExpiry: { $gt: Date.now() },
+  });
+
+  if (!user) {
+    throw new ApiError(400, "Reset token is invalid or has expired.");
+  }
+  user.password = password;
+
+  user.forgotPasswordToken = undefined;
+  user.forgotPasswordExpiry = undefined;
+
+  await user.save();
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, {}, "Password reset successfully."));
 });
