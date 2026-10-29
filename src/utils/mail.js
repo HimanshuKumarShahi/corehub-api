@@ -1,20 +1,47 @@
 import Mailgen from "mailgen";
 import nodemailer from "nodemailer";
 
+const logEmailToConsole = (options) => {
+  const actionLink =
+    options.mailgenContent?.body?.action?.button?.link || "N/A";
+  const token =
+    options.mailgenContent?.body?.dictionary?.["Postman Test Token"] ||
+    actionLink.split("/").pop();
+
+  console.log("\n==========================================================");
+  console.log("📬 CONSOLE EMAIL MODE (SMTP BYPASSED)");
+  console.log("==========================================================");
+  console.log(`👤 To:      ${options.email}`);
+  console.log(`📌 Subject: ${options.subject}`);
+  console.log(`🔑 Token:   ${token}`);
+  console.log(`🔗 URL:     ${actionLink}`);
+  console.log("==========================================================\n");
+};
+
 const sendEmail = async (options) => {
+  const isEmailEnabled = process.env.ENABLE_EMAIL === "true";
+  const hasSmtpCredentials =
+    process.env.MAILTRAP_SMPT_HOST &&
+    process.env.MAILTRAP_SMPT_USER &&
+    process.env.MAILTRAP_SMPT_PASS;
+
+  if (!isEmailEnabled || !hasSmtpCredentials) {
+    logEmailToConsole(options);
+    return;
+  }
+
   const mailGenerator = new Mailgen({
     theme: "cerberus",
     product: {
-      name: "CoreHub_API",
+      name: "CoreHub",
       link: "https://corehub-api.com",
       logo: "https://placehold.co/200x50/1e293b/ffffff?text=CoreHub+API",
       logoHeight: "40px",
-      copyright: "© 2026 CoreHub_API. All rights reserved.",
+      copyright: "© 2026 CoreHub API. All rights reserved.",
     },
   });
 
   const emailTextual = mailGenerator.generatePlaintext(options.mailgenContent);
-
   const emailHtml = mailGenerator.generate(options.mailgenContent);
 
   const transporter = nodemailer.createTransport({
@@ -27,7 +54,7 @@ const sendEmail = async (options) => {
   });
 
   const mail = {
-    from: '"CoreHub API" <Himanshu@corehub-api.com>',
+    from: '"CoreHub API" <noreply@corehub-api.com>',
     to: options.email,
     subject: options.subject,
     text: emailTextual,
@@ -38,9 +65,10 @@ const sendEmail = async (options) => {
     await transporter.sendMail(mail);
   } catch (error) {
     console.error(
-      "Email service failed silently. Check your .env or MAILTRAP credentials."
+      "⚠️ SMTP Email failed. Falling back to Console Mode so you can continue testing:"
     );
-    console.error("ERROR: ", error);
+    console.error("ERROR:", error.message);
+    logEmailToConsole(options);
   }
 };
 
