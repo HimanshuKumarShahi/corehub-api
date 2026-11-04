@@ -4,6 +4,7 @@ import cookieParser from "cookie-parser";
 
 import healthCheckRouter from "./routes/healthCheck.routes.js";
 import authRouter from "./routes/auth/auth.routes.js";
+import userRouter from "./routes/auth/user.routes.js";
 
 const app = express();
 
@@ -36,6 +37,8 @@ app.get("/", (req, res) => {
 
 app.use("/api/v1/healthcheck", healthCheckRouter);
 app.use("/api/v1/auth", authRouter);
+app.use("/api/v1/users", userRouter);
+
 
 app.use((err, req, res, next) => {
   const statusCode = typeof err.statusCode === "number" ? err.statusCode : 500;
