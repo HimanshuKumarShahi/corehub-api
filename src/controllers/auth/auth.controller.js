@@ -8,6 +8,7 @@ import {
   emailVerificationMailgenContent,
   forgotPasswordMailgenContent,
 } from "../../utils/mail.js";
+import { uploadFile, removeLocalFile } from "../../utils/storage.js";
 
 const cookieOptions = {
   httpOnly: true,
@@ -215,4 +216,147 @@ export const resetPassword = asyncHandler(async (req, res) => {
   return res
     .status(200)
     .json(new ApiResponse(200, {}, "Password reset successfully."));
+});
+
+// logged in user Details
+export const getCurrentUser = asyncHandler(async (req, res) => {
+  return res
+    .status(200)
+    .json(
+      new ApiResponse(
+        200,
+        { user: req.user },
+        "Current user fetched successfully."
+      )
+    );
+});
+
+// Get Public Profile by Username
+export const getUserProfileByUsername = asyncHandler(async (req, res) => {
+  const { username } = req.params;
+
+  if (!username?.trim()) {
+    throw new ApiError(400, "Username is required.");
+  }
+
+  const user = await User.findOne({
+    username: username.toLowerCase().trim(),
+  }).select("username fullName avatar role isEmailVerified createdAt");
+
+  if (!user) {
+    throw new ApiError(404, "User profile not found.");
+  }
+
+  return res
+    .status(200)
+    .json(
+      new ApiResponse(
+        200,
+        { profile: user },
+        "User profile fetched successfully."
+      )
+    );
+});
+
+// update profile details
+export const updateAccountDetails = asyncHandler(async (req, res) => {
+  const { fullName, username } = req.body;
+
+  if (!fullName && !username) {
+    throw new ApiError(400, "Please provide fullName or username to update.");
+  }
+
+  if (username) {
+    const existingUser = await User.findOne({
+      username: username.toLowerCase().trim(),
+      _id: { $ne: req.user._id },
+    });
+
+    if (existingUser) {
+      throw new ApiError(409, "Username is already taken.");
+    }
+  }
+
+  const updateFields = {};
+  if (fullName) updateFields.fullName = fullName.trim();
+  if (username) updateFields.username = username.toLowerCase().trim();
+
+  const updatedUser = await User.findByIdAndUpdate(
+    req.user._id,
+    { $set: updateFields },
+    { returnDocument: "after" }
+  ).select(
+    "-password -refreshToken -emailVerificationToken -emailVerificationExpiry"
+  );
+
+  return res
+    .status(200)
+    .json(
+      new ApiResponse(
+        200,
+        { user: updatedUser },
+        "Profile updated successfully."
+      )
+    );
+});
+
+// update user avatar
+export const updateUserAvatar = asyncHandler(async (req, res) => {
+  if (!req.file) {
+    throw new ApiError(400, "Avatar image file is required.");
+  }
+
+  const uploadedAvatar = await uploadFile(req, req.file);
+
+  if (req.user.avatar?.localPath) {
+    removeLocalFile(req.user.avatar.localPath);
+  }
+
+  const updatedUser = await User.findByIdAndUpdate(
+    req.user._id,
+    {
+      $set: {
+        avatar: {
+          url: uploadedAvatar.url,
+          localPath: uploadedAvatar.localPath,
+        },
+      },
+    },
+    { returnDocument: "after" }
+  ).select(
+    "-password -refreshToken -emailVerificationToken -emailVerificationExpiry"
+  );
+
+  return res
+    .status(200)
+    .json(
+      new ApiResponse(
+        200,
+        { user: updatedUser },
+        "Avatar updated successfully."
+      )
+    );
+});
+
+// change password 
+export const changeCurrentPassword = asyncHandler(async (req, res) => {
+  const { oldPassword, newPassword } = req.body;
+
+  if (!oldPassword || !newPassword) {
+    throw new ApiError(400, "Both oldPassword and newPassword are required.");
+  }
+
+  const user = await User.findById(req.user._id);
+  const isPasswordValid = await user.isPasswordCorrect(oldPassword);
+
+  if (!isPasswordValid) {
+    throw new ApiError(401, "Invalid old password.");
+  }
+
+  user.password = newPassword;
+  await user.save();
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, {}, "Password changed successfully."));
 });
