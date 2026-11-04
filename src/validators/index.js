@@ -75,3 +75,41 @@ export const resetPasswordValidator = () => {
       ),
   ];
 };
+
+export const updateProfileValidator = () => {
+  return [
+    body("username")
+      .optional()
+      .trim()
+      .notEmpty()
+      .withMessage("Username cannot be empty")
+      .isLowercase()
+      .withMessage("Username must be lowercase")
+      .isLength({ min: 3 })
+      .withMessage("Username must be at least 3 characters long"),
+    body("fullName")
+      .optional()
+      .trim()
+      .notEmpty()
+      .withMessage("Full name cannot be empty"),
+  ];
+};
+
+export const changePasswordValidator = () => {
+  return [
+    body("oldPassword")
+      .trim()
+      .notEmpty()
+      .withMessage("Old password is required"),
+    body("newPassword")
+      .trim()
+      .notEmpty()
+      .withMessage("New password is required")
+      .isLength({ min: 8 })
+      .withMessage("New password must be at least 8 characters long")
+      .matches(/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}$/)
+      .withMessage(
+        "New password must contain 1 uppercase, 1 lowercase, and 1 number"
+      ),
+  ];
+};
