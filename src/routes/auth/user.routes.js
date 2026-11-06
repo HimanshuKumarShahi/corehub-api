@@ -5,7 +5,7 @@ import {
   updateAccountDetails,
   updateUserAvatar,
   changeCurrentPassword,
-} from "../../controllers/auth/auth.controller.js";
+} from "../../controllers/users/user.controller.js";
 
 import {
   validate,
